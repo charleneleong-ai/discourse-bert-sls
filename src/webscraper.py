@@ -3,9 +3,10 @@
 ###
 # Created Date: Monday, June 8th 2020, 1:32:58 am
 # Author: Charlene Leong charleneleong84@gmail.com
-# Last Modified: Wednesday, June 10th 2020, 1:14:41 am
+# Last Modified: Friday, June 12th 2020, 11:21:20 pm
 ###
 
+import os
 import argparse
 import json
 import scrapy
@@ -13,27 +14,24 @@ from scrapy.crawler import CrawlerProcess
 import html2text
 
 
-# install JSONView chrome extension
-
 class DiscourseForumSpider(scrapy.Spider):
     name = 'discourse_forum_spider'
     def __init__(self, forum_name, base_url, *args, **kwargs):
         super(DiscourseForumSpider, self).__init__(*args, **kwargs)
         self.page_base_url = f"{base_url}/latest.json?no_definitions=true&page=%s" # eg. {base_url}/latest.json?no_definitions=true&page={page_num}
         self.post_url = f"{base_url}/t/%s.json?track_visit=true&forceLoad=true"  # eg. {base_url}/t/{post_id}.json?track_visit=true&forceLoad=true
-        self.post_html_url = f"{base_url}/t/%s/%s"  # eg. https://{base_url}/t/{topic_slug}/{topic_id}
+        # self.post_html_url = f"{base_url}/t/%s/%s"  # eg. https://{base_url}/t/{topic_slug}/{topic_id}
 
         self.start_page = 0
         self.start_urls = [self.page_base_url % self.start_page]
-        self.download_delay = 2.5
+        self.download_delay = 1.5
         self.forum_name = forum_name
 
 
     def parse(self, response):
         data = json.loads(response.body)
-        #data['topic_list']['topics'] - list of posts
+
         for post_topic in data['topic_list']['topics']:
-            
             yield scrapy.Request(self.post_url % post_topic.get('id'), callback=self.parse_post)    # Requesting post_url with post ID
         # if self.start_page == 2:
         #     return
@@ -44,7 +42,6 @@ class DiscourseForumSpider(scrapy.Spider):
 
     def parse_post(self, response):
         data = json.loads(response.body)
-
         for post in data['post_stream']['posts']:
             h = html2text.HTML2Text()
             h.unicode_snob = True
@@ -84,12 +81,16 @@ class DiscourseForumSpider(scrapy.Spider):
 
 def main(args):
     forum_name = args.forum_name
-    df_name = f'{forum_name}_forum_df'
+    filename = f'{forum_name}_forum_posts'
     base_url = args.base_url
     
+    OUTPUT_FOLDER = os.path.join(os.getcwd(), 'output')
+    if not os.path.exists(OUTPUT_FOLDER):
+        os.makedirs(OUTPUT_FOLDER)
+
     process = CrawlerProcess(settings={
         "FEEDS": {
-            f"{df_name}.csv": {"format": "csv"},
+            os.path.join(OUTPUT_FOLDER, f'{filename}.csv') : {"format": "csv"},
         },
     })
 

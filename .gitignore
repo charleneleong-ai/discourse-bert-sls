@@ -35,3 +35,6 @@ __pycache__
 *.code-workspace
 .vscode
 
+
+output
+*.csv
