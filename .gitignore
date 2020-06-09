@@ -1,0 +1,37 @@
+# Distribution / packaging
+.Python
+*.pyc
+env/
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+
+# Mac
+.DS_Store
+
+# Packages
+node_modules
+
+# Serverless 
+.serverless
+serverless_sdk
+
+
+# Python
+__pycache__
+
+# VSCode
+*.code-workspace
+.vscode
+

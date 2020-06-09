@@ -1,0 +1,17 @@
+org: chaleong
+app: discourse-bert-sls
+
+service: discourse-webscraper
+frameworkVersion: '>=1.65.0'
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: ${opt:region, 'ap-southeast-2'} 
+  stage: ${opt:stage, 'dev'}
+  logRetentionInDays: 30
+  memorySize: 128
+  timeout: 60
+
+
+
